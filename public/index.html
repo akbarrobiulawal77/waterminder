@@ -3,364 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WaterMinder - Pengingat Minum Air</title>
-    
-    <!-- Google Fonts: Comfortaa & IBM Plex Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-
-    <!-- TensorFlow.js & MobileNet untuk Verifikasi Gambar -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-
+    <title>WaterMinder 💧</title>
+    <!-- Menghubungkan ke manifest PWA jika ada -->
+    <link rel="manifest" href="/manifest.json">
     <style>
-        /* Base Reset & Core Styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background-color: #f0f8ff; 
         }
-
-        body {
-            font-family: 'IBM Plex Mono', monospace;
-            background-color: #F7FAFC;
-            color: #1A202C;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+        h1 { color: #0077be; }
+        video, canvas { 
+            max-width: 100%; 
+            border-radius: 12px; 
+            margin-top: 15px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        /* Typography */
-        h1 {
-            font-family: 'Comfortaa', sans-serif;
-            font-weight: 700;
-            font-size: 28px;
-            color: #1A202C;
-            text-align: center;
-            margin-bottom: 24px;
-            margin-top: 12px;
+        button { 
+            padding: 12px 24px; 
+            margin: 10px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold;
+            transition: 0.3s;
         }
-
-        /* Main Container Card (Informational Card Pattern) */
-        .app-card {
-            background-color: #F2F7F5; /* Mint Background */
-            border: 2px solid #1A202C;
-            border-radius: 12px;
-            padding: 24px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15); /* Level 2 Shadow */
-        }
-
-        .status-badge {
-            display: inline-block;
-            background-color: #FFF5E6;
-            border: 1px solid #FAAE2B;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #DD6B20;
-            margin-bottom: 16px;
-        }
-
-        .status-badge.success {
-            background-color: #E8F4F9;
-            border-color: #8BD3DD;
-            color: #1A202C;
-        }
-
-        .alert-text {
-            font-size: 16px;
-            line-height: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* Camera & Preview Styling */
-        .camera-box {
-            width: 100%;
-            height: 280px;
-            background-color: #E2E8F0;
-            border: 2px solid #1A202C;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        video, img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .placeholder-text {
-            color: #A0AEC0;
-            font-size: 14px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* Buttons Styling (Saweria Playful Specs) */
-        .btn-primary {
-            display: block;
-            width: 100%;
-            background-color: #FAAE2B; /* Bright Amber */
-            color: #1A202C;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 14px 20px;
-            border: 2px solid #1A202C;
-            border-radius: 8px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .btn-primary:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-secondary {
-            display: block;
-            width: 100%;
-            background-color: #8BD3DD; /* Soft Aqua */
-            color: #1A202C;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 14px 20px;
-            border: 2px solid #1A202C;
-            border-radius: 8px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            text-align: center;
-        }
-
-        /* Loading Screen overlay inside box */
-        .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(26, 32, 44, 0.8);
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            display: none;
-        }
+        button:active { transform: scale(0.95); }
+        #notifyBtn { background-color: #20b2aa; color: white; }
+        #cameraBtn { background-color: #ff9800; color: white; }
+        #captureBtn { background-color: #4CAF50; color: white; display: none; }
+        #status { margin-top: 20px; font-size: 18px; font-weight: bold; }
+        canvas { display: none; } /* Sembunyikan hasil foto di awal */
+        #videoContainer { display: none; } /* Sembunyikan area kamera di awal */
     </style>
 </head>
 <body>
 
-    <h1>WaterMinder</h1>
-    <button id="enableNotifBtn" class="btn-secondary" style="margin-bottom: 24px; max-width: 450px;">
-    AKTIFKAN NOTIFIKASI 🔔
-    </button>
-    <div class="app-card">
-        <div id="statusBadge" class="status-badge">BUTUH KONFIRMASI</div>
-        
-        <p id="instructionText" class="alert-text">
-            Halo! Sudah waktunya minum air. Silakan ambil foto segelas/sebotol air minum kamu untuk mematikan peringatan ini.
-        </p>
-
-        <div class="camera-box">
-            <div id="placeholder" class="placeholder-text">Kamera belum aktif. Klik tombol di bawah untuk mulai verifikasi.</div>
-            <video id="video" autoplay playsinline style="display: none;"></video>
-            <img id="photoPreview" alt="Preview foto minum" style="display: none;">
-            <div id="loadingOverlay" class="loading-overlay">Menganalisis objek... 🧠</div>
-        </div>
-
-        <!-- Sistem Input Kamera Native Mobile (Fallback & Capture Tercepat) -->
-        <input type="file" id="cameraInput" accept="image/*" capture="user" style="display: none;">
-
-        <button id="actionBtn" class="btn-primary">BUKA KAMERA</button>
-        <button id="resetBtn" class="btn-secondary" style="display: none;">COBA LAGI</button>
+    <h1>WaterMinder Asa💧</h1>
+    <p>Pengingat Minum Air Asa</p>
+    
+    <button id="notifyBtn">AKTIFKAN NOTIFIKASI 🔔</button>
+    <br>
+    <button id="cameraBtn">BUKA KAMERA 📸</button>
+    
+    <div id="videoContainer">
+        <video id="video" autoplay playsinline></video>
+        <br>
+        <button id="captureBtn">AMBIL FOTO 📷</button>
     </div>
+    
+    <canvas id="canvas"></canvas>
+    <p id="status"></p>
 
     <script>
-        const actionBtn = document.getElementById('actionBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const cameraInput = document.getElementById('cameraInput');
-        const placeholder = document.getElementById('placeholder');
-        const photoPreview = document.getElementById('photoPreview');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const statusBadge = document.getElementById('statusBadge');
-        const instructionText = document.getElementById('instructionText');
+        // 1. KUNCI VAPID ASLI KAMU
+        const publicVapidKey = 'BAc-JwNMO9tggLt1IARMD23OIlA1pItwyUd8qcKofukG3CkwR2zrHWdo7GLaH3F1d9Bdo1eBb-RsDbChyL6E8dA';
 
-        let net = null;
-
-        // Load Model TensorFlow MobileNet di awal agar cepat saat dieksekusi
-        async function loadModel() {
-            instructionText.innerText = "Memuat sistem kecerdasan buatan verifikasi... Mohon tunggu sebentar.";
-            actionBtn.disabled = true;
-            actionBtn.style.opacity = "0.5";
-            net = await mobilenet.load();
-            instructionText.innerText = "Sistem siap! Silakan ambil foto air minum kamu untuk mematikan peringatan.";
-            actionBtn.disabled = false;
-            actionBtn.style.opacity = "1";
+        // 2. DAFTARKAN SERVICE WORKER (Jembatan Notifikasi)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker siap!'))
+                .catch(err => console.error('Service Worker gagal:', err));
         }
-        loadModel();
 
-        // Trigger kamera bawaan HP saat tombol ditekan
-        actionBtn.addEventListener('click', () => {
-            cameraInput.click();
-        });
+        // 3. LOGIKA TOMBOL NOTIFIKASI
+        document.getElementById('notifyBtn').addEventListener('click', async () => {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        const registration = await navigator.serviceWorker.ready;
+                        
+                        const subscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                        });
 
-        // Proses gambar setelah pengguna selesai mengambil foto
-        cameraInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+                        // Kirim data HP ke server Railway
+                        await fetch('/subscribe', {
+                            method: 'POST',
+                            body: JSON.stringify(subscription),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
 
-            // Tampilkan preview gambar ke UI
-            const imageURL = URL.createObjectURL(file);
-            photoPreview.src = imageURL;
-            placeholder.style.display = 'none';
-            photoPreview.style.display = 'block';
-            
-            // Aktifkan loading analisis
-            loadingOverlay.style.display = 'flex';
-            actionBtn.style.display = 'none';
-
-            // Jalankan Verifikasi Menggunakan AI (MobileNet)
-            try {
-                const predictions = await net.classify(photoPreview);
-                verifyImage(predictions);
-            } catch (error) {
-                alert("Gagal menganalisis gambar. Silakan coba lagi.");
-                resetUI();
-            } finally {
-                loadingOverlay.style.display = 'none';
-            }
-        });
-
-        // Logika Validasi Objek Air Minum
-        function verifyImage(predictions) {
-            // Keyword objek yang diizinkan lolos verifikasi
-            const validKeywords = [
-                'water', 'glass', 'cup', 'goblet', 'mug', 'beaker', 
-    'bottle', 'water bottle', 'pop bottle', 'beer bottle', 
-    'pitcher', 'vase', 'coffee mug', 'teapot'
-            ];
-
-            let isWaterOrGlass = false;
-            console.log("Hasil Deteksi AI:", predictions); // Bisa di-inspect di browser HP
-
-            // Periksa apakah hasil top prediksi mengandung keyword yang cocok
-            for (let i = 0; i < predictions.length; i++) {
-                const className = predictions[i].className.toLowerCase();
-                const match = validKeywords.some(keyword => className.includes(keyword));
-                
-                // Set batas akurasi minimal (threshold) sebesar 10% (0.10) agar tidak terlalu ketat di HP
-                if (match && predictions[i].probability > 0.01) {
-                    isWaterOrGlass = true;
-                    break;
+                        document.getElementById('status').innerText = 'Notifikasi Aktif! ✅ Server siap mengingatkanmu.';
+                        document.getElementById('status').style.color = 'green';
+                    } else {
+                        document.getElementById('status').innerText = 'Izin notifikasi ditolak oleh sistem.';
+                        document.getElementById('status').style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('status').innerText = 'Terjadi kesalahan saat mengaktifkan notifikasi.';
                 }
-            }
-
-            if (isWaterOrGlass) {
-                // JIKA LOLOS VERIFIKASI
-                statusBadge.innerText = "VERIFIKASI BERHASIL! 🎉";
-                statusBadge.className = "status-badge success";
-                instructionText.innerText = "Bagus sekali! Foto terverifikasi berisi wadah air/minuman. Notifikasi pengingat dinonaktifkan. Jangan lupa minum lagi nanti ya!";
-                resetBtn.style.display = 'none';
-                actionBtn.style.display = 'none';
-                
-                // DI SINI: Tempat menaruh logika PWA untuk menutup/mereset token notifikasi push di server
             } else {
-                // JIKA GAGAL VERIFIKASI
-                statusBadge.innerText = "VERIFIKASI GAGAL ❌";
-                instructionText.innerText = "Maaf, AI mendeteksi foto ini bukan air minum atau wadah air. Silakan ambil foto gelas atau botol air minum dengan pencahayaan yang jelas.";
-                resetBtn.style.display = 'block';
+                alert('Maaf, browser HP kamu tidak mendukung fitur ini.');
             }
-        }
-
-        // Reset UI jika verifikasi gagal dan ingin mengulang
-        resetBtn.addEventListener('click', () => {
-            resetUI();
         });
 
-        function resetUI() {
-            cameraInput.value = "";
-            photoPreview.style.display = 'none';
-            photoPreview.src = "";
-            placeholder.style.display = 'block';
-            actionBtn.style.display = 'block';
-            resetBtn.style.display = 'none';
-            statusBadge.innerText = "BUTUH KONFIRMASI";
-            statusBadge.className = "status-badge";
-            instructionText.innerText = "Silakan ambil foto segelas/sebotol air minum kamu untuk mematikan peringatan ini.";
+        // Helper: Mengubah format VAPID Key agar bisa dibaca browser
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
         }
 
-        // public/index.html (di dalam tag <script>)
+        // 4. LOGIKA KAMERA & FOTO (Tanpa AI)
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const statusText = document.getElementById('status');
 
-const enableNotifBtn = document.getElementById('enableNotifBtn');
+        // Buka Kamera Belakang
+        cameraBtn.addEventListener('click', async () => {
+            try {
+                // facingMode: 'environment' memaksa HP pakai kamera belakang (jika ada)
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                
+                videoContainer.style.display = 'block';
+                captureBtn.style.display = 'inline-block';
+                cameraBtn.style.display = 'none'; 
+                canvas.style.display = 'none'; 
+                
+                statusText.innerText = 'Silakan jepret bukti kamu minum! 💧';
+                statusText.style.color = 'black';
+            } catch (err) {
+                console.error('Kamera gagal diakses:', err);
+                statusText.innerText = 'Gagal membuka kamera. Pastikan izin kamera diberikan.';
+                statusText.style.color = 'red';
+            }
+        });
 
-// Kunci publik VAPID yang sama dengan yang ada di server.js (diambil dari .env)
-// GANTI DENGAN KUNCI PUBLIC MILIKMU
-const publicVapidKey = 'BAc-JwNMO9tggLt1IARMD23OIlA1pItwyUd8qcKofukG3CkwR2zrHWdo7GLaH3F1d9Bdo1eBb-RsDbChyL6E8dA'; 
+        // Jepret Foto -> Langsung Sukses!
+        captureBtn.addEventListener('click', () => {
+            // Sesuaikan ukuran kanvas dengan video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Cetak gambar ke layar
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Matikan aliran kamera agar baterai tidak boros
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
 
-// Konversi kunci untuk web-push
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
+            // Ganti tampilan antarmuka
+            canvas.style.display = 'block';
+            videoContainer.style.display = 'none';
+            cameraBtn.style.display = 'inline-block'; 
+            cameraBtn.innerText = 'FOTO ULANG 📸';
 
-// Fungsi untuk mendaftarkan Service Worker dan Notifikasi
-async function subscribePush() {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-        try {
-            // 1. Register Service Worker
-            const register = await navigator.serviceWorker.register('/sw.js', {
-                scope: '/'
-            });
-            console.log('Service Worker Registered');
-
-            // 2. Minta Izin Langganan Notifikasi
-            const subscription = await register.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-            });
-
-            // 3. Kirim data langganan ke Backend Node.js kita
-            await fetch('/subscribe', {
-                method: 'POST',
-                body: JSON.stringify(subscription),
-                headers: {
-                    'content-type': 'application/json'
-                }
-            });
-
-            enableNotifBtn.innerText = "NOTIFIKASI AKTIF ✅";
-            enableNotifBtn.style.backgroundColor = "#F2F7F5"; // Mint Background
-            enableNotifBtn.disabled = true;
-
-        } catch (err) {
-            console.error('Gagal mengaktifkan notifikasi:', err);
-            alert('Gagal mengaktifkan notifikasi. Pastikan browser mendukung dan izin diberikan.');
-        }
-    } else {
-        alert('Browser ini tidak mendukung Push Notification.');
-    }
-}
-
-enableNotifBtn.addEventListener('click', subscribePush);
+            // NYATAKAN SUKSES!
+            statusText.innerText = 'i Love You Asa ❤️😘. ✅💧';
+            statusText.style.color = 'green';
+        });
     </script>
 </body>
 </html>

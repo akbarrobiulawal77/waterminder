@@ -2,6 +2,29 @@
 require('dotenv').config();
 const express = require('express');
 const webpush = require('web-push');
+const cron = require('node-cron');
+
+// Fungsi kirim notifikasi (kita ambil dari fungsi yang sudah ada sebelumnya)
+const sendWaterReminder = () => {
+    const payload = JSON.stringify({
+        title: 'Waktunya Minum Air! 💧',
+        body: 'Tubuhmu butuh cairan. Klik di sini dan ambil foto air minummu sekarang!',
+        url: '/'
+    });
+
+    subscriptions.forEach(sub => {
+        webpush.sendNotification(sub, payload).catch(err => {
+            console.error("Gagal mengirim:", err);
+        });
+    });
+};
+
+// JADWAL: Kirim setiap 2 jam (bisa diubah ke '0 0 */2 * * *')
+// Untuk pengetesan agar cepat, coba '*/1 * * * *' (setiap 1 menit)
+cron.schedule('*/1 * * * *', () => {
+    console.log('Menjalankan pengingat air otomatis...');
+    sendWaterReminder();
+});
 const path = require('path');
 
 const app = express();

@@ -56,7 +56,13 @@
     
     <canvas id="canvas"></canvas>
     <p id="status"></p>
-
+    <!-- KOTAK STATISTIK MINUM -->
+    <div style="margin-top: 30px; padding: 15px; background-color: #e0f7fa; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+        <h3 style="margin-top: 0; color: #00838f;">Statistik Hari Ini 📊</h3>
+        <p style="font-size: 18px; margin: 5px 0;">Total Minum: <strong id="drinkCount" style="color: #0077be; font-size: 24px;">0</strong> gelas</p>
+        <p style="color: #555;">Terakhir minum: <span id="lastDrinkTime">Belum ada</span></p>
+        <button id="resetBtn" style="background-color: #ff5252; color: white; padding: 8px 16px; font-size: 14px; margin-top: 10px;">Reset Data</button>
+    </div>
     <script>
         // 1. KUNCI VAPID ASLI KAMU
         const publicVapidKey = 'BAc-JwNMO9tggLt1IARMD23OIlA1pItwyUd8qcKofukG3CkwR2zrHWdo7GLaH3F1d9Bdo1eBb-RsDbChyL6E8dA';
@@ -88,7 +94,7 @@
                             headers: { 'Content-Type': 'application/json' }
                         });
 
-                        document.getElementById('status').innerText = 'Notifikasi Aktif! ✅ Server siap mengingatkanmu.';
+                        document.getElementById('status').innerText = 'Notifikasi Aktif! ✅';
                         document.getElementById('status').style.color = 'green';
                     } else {
                         document.getElementById('status').innerText = 'Izin notifikasi ditolak oleh sistem.';
@@ -171,6 +177,43 @@
             // NYATAKAN SUKSES!
             statusText.innerText = 'i Love You Asa ❤️😘. ✅💧';
             statusText.style.color = 'green';
+        });
+        // --- FITUR STATISTIK LOCALSTORAGE ---
+
+        // 1. Ambil data dari memori HP saat web dibuka
+        let totalDrinks = localStorage.getItem('waterCount') || 0;
+        let lastTime = localStorage.getItem('lastDrinkTime') || 'Belum ada';
+
+        // 2. Tampilkan data ke layar
+        document.getElementById('drinkCount').innerText = totalDrinks;
+        document.getElementById('lastDrinkTime').innerText = lastTime;
+
+        // 3. Update data saat tombol "AMBIL FOTO" diklik
+        captureBtn.addEventListener('click', () => {
+            // Tambah jumlah minum
+            totalDrinks++;
+            localStorage.setItem('waterCount', totalDrinks);
+
+            // Catat jam saat ini
+            const now = new Date();
+            const timeString = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+            localStorage.setItem('lastDrinkTime', timeString);
+
+            // Perbarui tampilan di layar
+            document.getElementById('drinkCount').innerText = totalDrinks;
+            document.getElementById('lastDrinkTime').innerText = timeString;
+        });
+
+        // 4. Tombol Reset untuk mengulang dari 0 besok harinya
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            const konfirmasi = confirm('Yakin ingin mereset data minum hari ini?');
+            if (konfirmasi) {
+                localStorage.removeItem('waterCount');
+                localStorage.removeItem('lastDrinkTime');
+                totalDrinks = 0;
+                document.getElementById('drinkCount').innerText = '0';
+                document.getElementById('lastDrinkTime').innerText = 'Belum ada';
+            }
         });
     </script>
 </body>

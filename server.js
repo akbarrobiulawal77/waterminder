@@ -50,6 +50,6 @@ app.post('/send-notification', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server WaterMinder berjalan di port ${PORT}`);
 });

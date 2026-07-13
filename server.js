@@ -7,8 +7,8 @@ const cron = require('node-cron');
 // Fungsi kirim notifikasi (kita ambil dari fungsi yang sudah ada sebelumnya)
 const sendWaterReminder = () => {
     const payload = JSON.stringify({
-        title: 'Waktunya Minum Air! 💧',
-        body: 'Tubuhmu butuh cairan. Klik di sini dan ambil foto air minummu sekarang!',
+        title: 'Waktunya Minum Air sayang 💧',
+        body: 'cepetan minum sayangku',
         url: '/'
     });
 
@@ -54,8 +54,8 @@ app.post('/subscribe', (req, res) => {
 // Endpoint untuk memicu notifikasi (Nanti bisa dibuat sistem Cron/Jadwal otomatis)
 app.post('/send-notification', (req, res) => {
     const payload = JSON.stringify({
-        title: 'Waktunya Minum Air! 💧',
-        body: 'Tubuhmu butuh cairan. Klik di sini dan ambil foto air minummu sekarang!',
+        title: 'Waktunya Minum Air sayang  💧',
+        body: 'i love you asa ❤️❤️❤️😘',
         url: '/'
     });
 

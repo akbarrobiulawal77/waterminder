@@ -4,7 +4,7 @@ self.addEventListener('push', function(event) {
     const data = event.data ? event.data.json() : {};
 
     const options = {
-        body: data.body || 'Waktunya minum air!',
+        body: data.body || 'Waktunya minum air sayang!',
         icon: '/icon.png', // Tambahkan gambar icon (misalnya logo air) di folder public
         vibrate: [200, 100, 200, 100, 200], // Getaran khas
         data: {

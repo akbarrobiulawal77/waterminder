@@ -7,8 +7,8 @@ const cron = require('node-cron');
 // Fungsi kirim notifikasi (kita ambil dari fungsi yang sudah ada sebelumnya)
 const sendWaterReminder = () => {
     const payload = JSON.stringify({
-        title: 'Waktunya Minum Air sayang 💧',
-        body: 'cepetan minum sayangku',
+        title: 'Waktunya Minum Air sayang  💧',
+        body: 'i love you asa ❤️❤️❤️😘',
         url: '/'
     });
 
@@ -21,7 +21,7 @@ const sendWaterReminder = () => {
 
 // JADWAL: Kirim setiap 2 jam (bisa diubah ke '0 0 */2 * * *')
 // Untuk pengetesan agar cepat, coba '*/1 * * * *' (setiap 1 menit)
-cron.schedule('0 */3 * * *', () => {
+cron.schedule('*/1 * * * *', () => {
     console.log('Menjalankan pengingat air otomatis...');
     sendWaterReminder();
 });

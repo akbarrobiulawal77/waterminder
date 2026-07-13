@@ -67,10 +67,24 @@
         // 1. KUNCI VAPID ASLI KAMU
         const publicVapidKey = 'BAc-JwNMO9tggLt1IARMD23OIlA1pItwyUd8qcKofukG3CkwR2zrHWdo7GLaH3F1d9Bdo1eBb-RsDbChyL6E8dA';
 
-        // 2. DAFTARKAN SERVICE WORKER (Jembatan Notifikasi)
+        // 2. DAFTARKAN SERVICE WORKER & CEK STATUS NOTIFIKASI
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker siap!'))
+                .then(async (reg) => {
+                    console.log('Service Worker siap!');
+                    
+                    // Cek otomatis apakah HP ini sudah pernah mendaftar notifikasi
+                    const subscription = await reg.pushManager.getSubscription();
+                    
+                    if (subscription) {
+                        // Jika sudah pernah daftar, otomatis tampilkan centang hijau
+                        document.getElementById('status').innerText = 'Notifikasi Sudah Aktif! ✅';
+                        document.getElementById('status').style.color = 'green';
+                        
+                        // Sembunyikan tombol notifikasi agar layar lebih rapi
+                        document.getElementById('notifyBtn').style.display = 'none';
+                    }
+                })
                 .catch(err => console.error('Service Worker gagal:', err));
         }
 

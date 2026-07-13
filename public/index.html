@@ -249,7 +249,8 @@
             // Keyword objek yang diizinkan lolos verifikasi
             const validKeywords = [
                 'water', 'glass', 'cup', 'goblet', 'mug', 'beaker', 
-                'bottle', 'water bottle', 'pop bottle', 'beer bottle'
+    'bottle', 'water bottle', 'pop bottle', 'beer bottle', 
+    'pitcher', 'vase', 'coffee mug', 'teapot'
             ];
 
             let isWaterOrGlass = false;
@@ -261,7 +262,7 @@
                 const match = validKeywords.some(keyword => className.includes(keyword));
                 
                 // Set batas akurasi minimal (threshold) sebesar 10% (0.10) agar tidak terlalu ketat di HP
-                if (match && predictions[i].probability > 0.10) {
+                if (match && predictions[i].probability > 0.01) {
                     isWaterOrGlass = true;
                     break;
                 }

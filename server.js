@@ -21,7 +21,7 @@ const sendWaterReminder = () => {
 
 // JADWAL: Kirim setiap 2 jam (bisa diubah ke '0 0 */2 * * *')
 // Untuk pengetesan agar cepat, coba '*/1 * * * *' (setiap 1 menit)
-cron.schedule('*/1 * * * *', () => {
+cron.schedule('0 */3 * * *', () => {
     console.log('Menjalankan pengingat air otomatis...');
     sendWaterReminder();
 });

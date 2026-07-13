@@ -49,7 +49,9 @@ app.post('/send-notification', (req, res) => {
     res.status(200).json({ message: 'Notifikasi berhasil dikirim' });
 });
 
-const PORT = process.env.PORT || 3000;
+// Paksa menggunakan port 3000 agar sinkron dengan pengaturan Railway kamu
+const PORT = 3000; 
+
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server WaterMinder berjalan di port ${PORT}`);
+    console.log(`[SUCCESS] Aplikasi WaterMinder berjalan mutlak di port ${PORT}`);
 });

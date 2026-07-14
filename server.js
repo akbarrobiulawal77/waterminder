@@ -1,80 +1,69 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const webpush = require('web-push');
 const cron = require('node-cron');
+const path = require('path');
 
-// Fungsi kirim notifikasi (kita ambil dari fungsi yang sudah ada sebelumnya)
+const app = express();
+app.use(express.json());
+
+// Menyajikan file dari folder "public"
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Konfigurasi Web Push dengan VAPID Keys dari file .env
+const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
+const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
+
+webpush.setVapidDetails(
+    'mailto:test@example.com',
+    publicVapidKey,
+    privateVapidKey
+);
+
+// Array untuk menyimpan data pendaftaran dari HP
+let subscriptions = [];
+
+// Menerima data pendaftaran (subscription) dari index.html
+app.post('/subscribe', (req, res) => {
+    const subscription = req.body;
+    
+    // Cek agar tidak ada data ganda jika tombol diklik berkali-kali
+    const isExists = subscriptions.some(sub => sub.endpoint === subscription.endpoint);
+    if (!isExists) {
+        subscriptions.push(subscription);
+        console.log('HP baru berhasil didaftarkan untuk notifikasi!');
+    }
+
+    res.status(201).json({});
+});
+
+// Fungsi untuk menembakkan notifikasi ke semua HP yang terdaftar
 const sendWaterReminder = () => {
     const payload = JSON.stringify({
-        title: 'Waktunya Minum Air sayang  💧',
-        body: 'i love you asa ❤️❤️❤️😘',
+        title: 'Waktunya Minum Air sayangku,Cintaku 💧',
+        body: 'Cepetan Minum Asa!',
         url: '/'
     });
 
     subscriptions.forEach(sub => {
         webpush.sendNotification(sub, payload).catch(err => {
-            console.error("Gagal mengirim:", err);
+            console.error("Gagal mengirim notifikasi:", err);
         });
     });
 };
 
-// JADWAL: Kirim setiap 2 jam (bisa diubah ke '0 0 */2 * * *')
-// Untuk pengetesan agar cepat, coba '*/1 * * * *' (setiap 1 menit)
-cron.schedule('*/1 * * * *', () => {
-    console.log('Menjalankan pengingat air otomatis...');
+// ==========================================
+// ALARM OTOMATIS (CRON JOB)
+// Berjalan pada menit ke-0, setiap 3 jam sekali
+// (Contoh: Jam 00:00, 03:00, 06:00, 09:00, dst)
+// ==========================================
+cron.schedule('0 */3 * * *', () => {
+    console.log('Memulai proses pengiriman pengingat minum (Jadwal 3 Jam)...');
     sendWaterReminder();
 });
-const path = require('path');
 
-const app = express();
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Ganti dengan hasil generate VAPID keys milikmu nanti
-const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
-
-webpush.setVapidDetails(
-    'mailto:emailkamu@contoh.com', // Ganti dengan emailmu
-    publicVapidKey,
-    privateVapidKey
-);
-
-// Array sementara untuk menyimpan data langganan user (Di production, simpan di database)
-let subscriptions = [];
-
-// Endpoint untuk menerima pendaftaran notifikasi dari HP pengguna
-app.post('/subscribe', (req, res) => {
-    const subscription = req.body;
-    subscriptions.push(subscription);
-    res.status(201).json({});
-});
-
-// Endpoint untuk memicu notifikasi (Nanti bisa dibuat sistem Cron/Jadwal otomatis)
-app.post('/send-notification', (req, res) => {
-    const payload = JSON.stringify({
-        title: 'Waktunya Minum Air sayang  💧',
-        body: 'i love you asa ❤️❤️❤️😘',
-        url: '/'
-    });
-
-    subscriptions.forEach((sub, index) => {
-        webpush.sendNotification(sub, payload).catch(err => {
-            console.error("Gagal mengirim ke user:", err);
-            // Hapus langganan jika sudah tidak valid
-            if (err.statusCode === 410 || err.statusCode === 404) {
-                subscriptions.splice(index, 1);
-            }
-        });
-    });
-
-    res.status(200).json({ message: 'Notifikasi berhasil dikirim' });
-});
-
-// Paksa menggunakan port 3000 agar sinkron dengan pengaturan Railway kamu
-const PORT = 3000; 
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[SUCCESS] Aplikasi WaterMinder berjalan mutlak di port ${PORT}`);
+// Jalankan Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server WaterMinder berjalan dengan baik di port ${PORT}`);
 });
